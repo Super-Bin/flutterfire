@@ -7,6 +7,8 @@ package io.flutter.plugins.firebase.analytics;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
@@ -30,13 +32,25 @@ public class FlutterFirebaseAnalyticsPlugin
     implements FlutterFirebasePlugin, MethodCallHandler, FlutterPlugin {
   private FirebaseAnalytics analytics;
   private MethodChannel channel;
+  private Context context;
 
   private void initInstance(BinaryMessenger messenger, Context context) {
-    analytics = FirebaseAnalytics.getInstance(context);
+//    analytics = FirebaseAnalytics.getInstance(context);
+    this.context = context;
     String channelName = "plugins.flutter.io/firebase_analytics";
     channel = new MethodChannel(messenger, channelName);
     channel.setMethodCallHandler(this);
     FlutterFirebasePluginRegistry.registerPlugin(channelName, this);
+  }
+
+  /**
+   * 20220913自己加入一个方法，初始化
+   */
+  private void initFirebaseAnalytics(){
+    if(this.context != null && this.analytics == null){
+      Log.i("zzb", "初始化initFirebaseAnalytics");
+      analytics = FirebaseAnalytics.getInstance(this.context);
+    }
   }
 
   private static Bundle createBundleFromMap(Map<String, Object> map) {
@@ -106,6 +120,9 @@ public class FlutterFirebaseAnalyticsPlugin
     Task<?> methodCallTask;
 
     switch (call.method) {
+      case "Analytics#initFirebaseAnalytics":
+        initFirebaseAnalytics();
+        return;
       case "Analytics#logEvent":
         methodCallTask = handleLogEvent(call.arguments());
         break;
@@ -157,7 +174,9 @@ public class FlutterFirebaseAnalyticsPlugin
           @SuppressWarnings("unchecked")
           final Map<String, Object> map = (Map<String, Object>) arguments.get(Constants.PARAMETERS);
           final Bundle parameterBundle = createBundleFromMap(map);
-          analytics.logEvent(eventName, parameterBundle);
+          if(analytics != null){
+            analytics.logEvent(eventName, parameterBundle);
+          }
           return null;
         });
   }
@@ -167,7 +186,9 @@ public class FlutterFirebaseAnalyticsPlugin
         cachedThreadPool,
         () -> {
           final String id = (String) arguments.get(Constants.USER_ID);
-          analytics.setUserId(id);
+          if(analytics != null){
+            analytics.setUserId(id);
+          }
           return null;
         });
   }
@@ -176,9 +197,13 @@ public class FlutterFirebaseAnalyticsPlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
+          initFirebaseAnalytics();
           final Boolean enabled =
               (Boolean) Objects.requireNonNull(arguments.get(Constants.ENABLED));
-          analytics.setAnalyticsCollectionEnabled(enabled);
+          if(analytics != null){
+            Log.i("zzb", "执行analytics handleSetAnalyticsCollectionEnabled");
+            analytics.setAnalyticsCollectionEnabled(enabled);
+          }
           return null;
         });
   }
@@ -189,7 +214,9 @@ public class FlutterFirebaseAnalyticsPlugin
         () -> {
           final Integer milliseconds =
               (Integer) Objects.requireNonNull(arguments.get(Constants.MILLISECONDS));
-          analytics.setSessionTimeoutDuration(milliseconds);
+          if(analytics != null){
+            analytics.setSessionTimeoutDuration(milliseconds);
+          }
           return null;
         });
   }
@@ -200,7 +227,9 @@ public class FlutterFirebaseAnalyticsPlugin
         () -> {
           final String name = (String) Objects.requireNonNull(arguments.get(Constants.NAME));
           final String value = (String) arguments.get(Constants.VALUE);
-          analytics.setUserProperty(name, value);
+          if(analytics != null){
+            analytics.setUserProperty(name, value);
+          }
           return null;
         });
   }
@@ -209,7 +238,9 @@ public class FlutterFirebaseAnalyticsPlugin
     return Tasks.call(
         cachedThreadPool,
         () -> {
-          analytics.resetAnalyticsData();
+          if(analytics != null){
+            analytics.resetAnalyticsData();
+          }
           return null;
         });
   }
@@ -241,7 +272,9 @@ public class FlutterFirebaseAnalyticsPlugin
                     : FirebaseAnalytics.ConsentStatus.DENIED);
           }
 
-          analytics.setConsent(parameters);
+          if(analytics != null){
+            analytics.setConsent(parameters);
+          }
           return null;
         });
   }
@@ -251,7 +284,9 @@ public class FlutterFirebaseAnalyticsPlugin
         cachedThreadPool,
         () -> {
           Map<String, Object> parameters = Objects.requireNonNull(arguments);
-          analytics.setDefaultEventParameters(createBundleFromMap(parameters));
+          if(analytics != null){
+            analytics.setDefaultEventParameters(createBundleFromMap(parameters));
+          }
           return null;
         });
   }

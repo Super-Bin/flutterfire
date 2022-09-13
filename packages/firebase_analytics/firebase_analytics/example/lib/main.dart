@@ -97,6 +97,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _testSetAnalyticsCollectionEnabled() async {
+    /// 先调用这个方式 初始化Analytics库
     await widget.analytics.setAnalyticsCollectionEnabled(false);
     await widget.analytics.setAnalyticsCollectionEnabled(true);
     setMessage('setAnalyticsCollectionEnabled succeeded');

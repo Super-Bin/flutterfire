@@ -4,7 +4,8 @@ description:
   solution that provides insight on app usage and user engagement on Android and iOS.
 homepage: https://firebase.flutter.dev/docs/analytics/overview
 repository: https://github.com/FirebaseExtended/flutterfire/tree/master/packages/firebase_analytics/firebase_analytics
-version: 9.1.0
+version: 9.1.0+1
+author: zzb
 
 false_secrets:
  - example/**

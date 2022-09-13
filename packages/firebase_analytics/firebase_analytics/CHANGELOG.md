@@ -1,3 +1,9 @@
+## 9.1.0+1
+修复android隐私合规问题，等到同意隐私政策后才初始化analytics
+但由于与原生进行通信使用firebase_analytics_platform_interface库，不想修改这个库的内容，
+所以把初始化方法放在了FlutterFirebaseAnalyticsPlugin.java的handleSetAnalyticsCollectionEnabled()中
+Flutter层需要调用一次FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true)来初始化analytics
+
 ## 9.1.0
 
  - **FEAT**: Improve `FirebaseAnalyticsObserver` so that it also fires events when the modal route changes. (#7711). ([f3bb2055](https://github.com/FirebaseExtended/flutterfire/commit/f3bb205594b3920f37eb4476c324e463f942c451))
